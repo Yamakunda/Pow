@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parking Card List</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f4f9;
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      flex-direction: column;
+    }
+    h1 {
+      color: #4CAF50;
+    }
+    table {
+      width: 80%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 12px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+    .button-container {
+      display: flex;
+      justify-content: space-between;
+      width: 80%;
+      margin-top: 20px;
+    }
+    .styled-button {
+      background-color: #4CAF50; /* Green background */
+      border: none; /* Remove borders */
+      color: white; /* White text */
+      padding: 15px 32px; /* Some padding */
+      text-align: center; /* Centered text */
+      text-decoration: none; /* Remove underline */
+      display: inline-block; /* Make the buttons appear side by side */
+      font-size: 16px; /* Increase font size */
+      margin: 4px 2px; /* Some margin */
+      cursor: pointer; /* Pointer/hand icon */
+      border-radius: 12px; /* Rounded corners */
+      transition-duration: 0.4s; /* 0.4 second transition effect to hover state */
+    }
+    .styled-button:hover {
+      background-color: white; /* White background on hover */
+      color: black; /* Black text on hover */
+      border: 2px solid #4CAF50; /* Green border on hover */
+    }
+  </style>
+</head>
+<body>
+  <div class="button-container">
+    <button class="styled-button" onclick="window.location.href='index.html'">Create Parking Card</button>
+    <button class="styled-button" onclick="window.location.href='parkingCardList.html'">Parking Card List</button>
+  </div>
+  <h1>Parking Card List</h1>
+  <table id="parkingCardTable">
+    <thead>
+      <tr>
+        <th>Card ID</th>
+        <th>Name</th>
+        <th>Address</th>
+        <th>Loại thẻ</th>
+        <th>Member Start Time</th>
+        <th>Member End Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Parking cards will be inserted here -->
+    </tbody>
+  </table>
+
+  <script>
+    async function fetchParkingCards() {
+      try {
+        const response = await fetch('http://localhost:3000/card');
+        const cards = await response.json();
+        const tableBody = document.getElementById('parkingCardTable').getElementsByTagName('tbody')[0];
+
+        cards.forEach(card => {
+          const row = tableBody.insertRow();
+          row.insertCell(0).innerText = card.card_id;
+          row.insertCell(1).innerText = card.name;
+          row.insertCell(2).innerText = card.address;
+          row.insertCell(3).innerText = card.type;
+          row.insertCell(4).innerText = card.member_start ? new Date(card.member_start).toLocaleString() : '';
+          row.insertCell(5).innerText = card.member_end ? new Date(card.member_end).toLocaleString() : '';
+        });
+      } catch (error) {
+        console.error('Error fetching parking cards:', error);
+      }
+    }
+
+    window.onload = fetchParkingCards;
+  </script>
+</body>
+</html>
