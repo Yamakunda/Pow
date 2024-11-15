@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parking API Test</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f4f9;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    input {
+      padding: 10px;
+      margin: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #response {
+      margin-top: 20px;
+      padding: 10px;
+      background: #e7f3e7;
+      border: 1px solid #c3e6c3;
+      border-radius: 4px;
+      color: #2d572d;
+      width: 80%;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="button-container">
+    <button class="styled-button" onclick="window.location.href='parkingCardList.html'">Parking Card List</button>
+    <button class="styled-button" onclick="window.location.href='index.html'">Create Parking Card</button>
+    <button class="styled-button" onclick="window.location.href='testParking.html'">Test Parking</button>
+  </div>
+  <input type="text" id="card_id" placeholder="Enter Card ID">
+  <button onclick="callApi('parkin')">Park In</button>
+  <button onclick="callApi('parkout')">Park Out</button>
+  <button onclick="callApi('parkinout')">Park In Out</button>
+
+  <div id="response"></div>
+
+  <script>
+    async function callApi(action) {
+      const cardId = document.getElementById('card_id').value;
+      if (!cardId) {
+        document.getElementById('response').innerText = 'Error: Card ID is required';
+        return;
+      }
+
+      try {
+        const response = await fetch(`http://localhost:3000/card/${action}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ card_id: cardId }) // Example payload
+        });
+
+        const result = await response.json();
+        document.getElementById('response').innerText = JSON.stringify(result, null, 2);
+      } catch (error) {
+        document.getElementById('response').innerText = 'Error: ' + error.message;
+      }
+    }
+  </script>
+</body>
+
+</html>

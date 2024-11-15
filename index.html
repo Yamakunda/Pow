@@ -95,6 +95,10 @@
       color: black; /* Black text on hover */
       border: 2px solid #4CAF50; /* Green border on hover */
     }
+
+    .hidden {
+      display: none;
+    }
   </style>
 </head>
 
@@ -103,26 +107,29 @@
     <div class="button-container">
       <button class="styled-button" onclick="window.location.href='parkingCardList.html'">Parking Card List</button>
       <button class="styled-button" onclick="window.location.href='index.html'">Create Parking Card</button>
+      <button class="styled-button" onclick="window.location.href='testParking.html'">Test Parking</button>
     </div>
     <h1>Create Parking Card</h1>
     <form id="parkingCardForm">
-      <label for="name">Name:</label>
-      <input type="text" id="name" name="name" required><br><br>
-
-      <label for="address">Address:</label>
-      <input type="text" id="address" name="address" required><br><br>
-
       <label for="card_id">Card ID:</label>
       <input type="text" id="card_id" name="card_id" required><br><br>
 
       <label for="is_member">Is Member:</label>
-      <input type="checkbox" id="is_member" name="is_member"><br><br>
+      <input type="checkbox" id="is_member" name="is_member" onchange="toggleMemberFields()"><br><br>
 
-      <label for="member_start_time">Member Start Time:</label>
-      <input type="datetime-local" id="member_start_time" name="member_start_time"><br><br>
+      <div id="memberFields" class="hidden">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name"><br><br>
 
-      <label for="member_end_time">Member End Time:</label>
-      <input type="datetime-local" id="member_end_time" name="member_end_time"><br><br>
+        <label for="address">Address:</label>
+        <input type="text" id="address" name="address"><br><br>
+
+        <label for="member_start_time">Member Start Time:</label>
+        <input type="datetime-local" id="member_start_time" name="member_start_time"><br><br>
+
+        <label for="member_end_time">Member End Time:</label>
+        <input type="datetime-local" id="member_end_time" name="member_end_time"><br><br>
+      </div>
 
       <button type="submit">Create Parking Card</button>
     </form>
@@ -130,16 +137,26 @@
   </div>
 
   <script>
+    function toggleMemberFields() {
+      const memberFields = document.getElementById('memberFields');
+      const isMember = document.getElementById('is_member').checked;
+      if (isMember) {
+        memberFields.classList.remove('hidden');
+      } else {
+        memberFields.classList.add('hidden');
+      }
+    }
+
     document.getElementById('parkingCardForm').addEventListener('submit', async function (event) {
       event.preventDefault();
 
       const formData = {
-        name: document.getElementById('name').value,
-        address: document.getElementById('address').value,
         card_id: document.getElementById('card_id').value,
         type: document.getElementById('is_member').checked ? 'member' : 'guest',
-        member_start_time: document.getElementById('member_start_time').value,
-        member_end_time: document.getElementById('member_end_time').value
+        name: document.getElementById('is_member').checked ? document.getElementById('name').value : "unknown",
+        address: document.getElementById('is_member').checked ? document.getElementById('address').value : "unknown",
+        member_start_time: document.getElementById('is_member').checked ? document.getElementById('member_start_time').value : null,
+        member_end_time: document.getElementById('is_member').checked ? document.getElementById('member_end_time').value : null
       };
 
       try {

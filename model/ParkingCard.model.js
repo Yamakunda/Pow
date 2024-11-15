@@ -23,28 +23,13 @@ const ParkingCardSchema = new mongoose.Schema({
   member_start:{
     type: Date,
     required: true,
-    default: Date.now,
+    default: Date.now(),
   },
   member_end:{
     type: Date,
     required: true,
-    default: Date.now,
-  },
-  in_use:{
-    type: Boolean,
-    required: true,
-    default: false,
-  },
-  time_in:{
-    type: Date,
-    required: true,
-    default: Date.now,
-  },
-  time_out:{
-    type: Date,
-    required: true,
-    default: Date.now,
-  },
+    default: Date.now(),
+  }
 })
 const ParkingCard = mongoose.model("Parking", ParkingCardSchema, "parkings");
 

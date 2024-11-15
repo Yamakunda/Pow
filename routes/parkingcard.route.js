@@ -9,5 +9,5 @@ router.put("/", controller.updateParkingCard);
 router.delete("/", controller.deleteParkingCard);
 router.post("/parkin", controller.parkIn);
 router.post("/parkout", controller.parkOut);
-
+router.post("/parkinout", controller.parkInOut);
 module.exports = router;
