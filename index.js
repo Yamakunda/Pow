@@ -18,7 +18,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 route(app);
 app.get("*", (req, res) => {
-  res.status(404).send("404 Not Found 12345");
+  res.status(404).send("Dit me pow");
 });
 app.listen(port, () => {
   console.log(`App listening on port ${port}`);

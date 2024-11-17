@@ -23,7 +23,7 @@ module.exports.getParkingCards = async (req, res) => {
 // Get a single parking card by ID
 module.exports.getParkingCardById = async (req, res) => {
   try {
-    const card = await ParkingCard.findById(req.params.id);
+    const card = await ParkingCard.find({ card_id: req.params.id });
     if (!card) return res.status(404).json({ message: "Parking card not found" });
     res.status(200).json(card);
   } catch (error) {
@@ -33,7 +33,7 @@ module.exports.getParkingCardById = async (req, res) => {
 // Update a parking card by ID
 module.exports.updateParkingCard = async (req, res) => {
   try {
-    const updatedCard = await ParkingCard.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const updatedCard = await ParkingCard.findOneAndUpdate({ card_id: req.body.card_id }, req.body)
     if (!updatedCard) return res.status(404).json({ message: "Parking card not found" });
     res.status(200).json(updatedCard);
   } catch (error) {
@@ -43,7 +43,7 @@ module.exports.updateParkingCard = async (req, res) => {
 // Delete a parking card by ID
 module.exports.deleteParkingCard = async (req, res) => {
   try {
-    const deletedCard = await ParkingCard.findByIdAndDelete(req.params.id);
+    const deletedCard = await ParkingCard.find({ card_id: req.params.id }).deleteOne();
     if (!deletedCard) return res.status(404).json({ message: "Parking card not found" });
     res.status(200).json({ message: "Parking card deleted" });
   } catch (error) {
@@ -94,7 +94,7 @@ module.exports.parkOut = async (req, res) => {
     });
     await newSession.save();
 
-    res.status(200).json({ message: `Card ${card.card_id} parked out`, cost: cost });
+    res.status(200).json({ message: `Card ${card.card_id} parked out`,cost: cost });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -102,7 +102,8 @@ module.exports.parkOut = async (req, res) => {
 module.exports.parkInOut = async (req, res) => {
   try {
     const card = await ParkingCard.findOne({ card_id: req.body.card_id });
-    if (!card) return res.status(404).json({ message: "Parking card not found" });
+    if (!card) return await ParkingCard.create({ card_id: req.body.card_id });
+    card = await ParkingCard.findOne({ card_id: req.body.card_id });
 
     const lastSession = await ParkingSession.findOne({ card_id: card.card_id }).sort({ createdAt: -1 });
 
@@ -143,3 +144,12 @@ module.exports.parkInOut = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+module.exports.getParkingCardSessions = async (req, res) => {
+  console.log("getParkingCardSessions");
+  try {
+    const sessions = await ParkingSession.find().sort({ createdAt: -1 }).limit(5);
+    res.status(200).json(sessions);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}

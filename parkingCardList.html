@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,53 +17,84 @@
       margin: 0;
       flex-direction: column;
     }
+
     h1 {
       color: #4CAF50;
     }
+
     table {
       width: 80%;
       border-collapse: collapse;
       margin-top: 20px;
     }
-    th, td {
+
+    th,
+    td {
       padding: 12px;
       border: 1px solid #ddd;
       text-align: left;
     }
+
     th {
       background-color: #4CAF50;
       color: white;
     }
+
     tr:nth-child(even) {
       background-color: #f2f2f2;
     }
+
     .button-container {
       display: flex;
       justify-content: space-between;
       width: 80%;
       margin-top: 20px;
     }
+
     .styled-button {
-      background-color: #4CAF50; /* Green background */
-      border: none; /* Remove borders */
-      color: white; /* White text */
-      padding: 15px 32px; /* Some padding */
-      text-align: center; /* Centered text */
-      text-decoration: none; /* Remove underline */
-      display: inline-block; /* Make the buttons appear side by side */
-      font-size: 16px; /* Increase font size */
-      margin: 4px 2px; /* Some margin */
-      cursor: pointer; /* Pointer/hand icon */
-      border-radius: 12px; /* Rounded corners */
-      transition-duration: 0.4s; /* 0.4 second transition effect to hover state */
+      background-color: #4CAF50;
+      border: none;
+      color: white;
+      padding: 15px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 12px;
+      transition-duration: 0.4s;
     }
+
     .styled-button:hover {
-      background-color: white; /* White background on hover */
-      color: black; /* Black text on hover */
-      border: 2px solid #4CAF50; /* Green border on hover */
+      background-color: white;
+      color: black;
+      border: 2px solid #4CAF50;
+    }
+
+    .delete-button {
+      background-color: #f44336;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 14px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 8px;
+      transition-duration: 0.4s;
+    }
+
+    .delete-button:hover {
+      background-color: white;
+      color: black;
+      border: 2px solid #f44336;
     }
   </style>
 </head>
+
 <body>
   <div class="button-container">
     <button class="styled-button" onclick="window.location.href='parkingCardList.html'">Parking Card List</button>
@@ -79,10 +111,27 @@
         <th>Loại thẻ</th>
         <th>Member Start Time</th>
         <th>Member End Time</th>
+        <th>Actions</th>
       </tr>
     </thead>
     <tbody>
       <!-- Parking cards will be inserted here -->
+    </tbody>
+  </table>
+
+  <h1>Parking Card Sessions</h1>
+  <table id="parkingSessionTable">
+    <thead>
+      <tr>
+        <th>Card ID</th>
+        <th>In</th>
+        <th>Time In</th>
+        <th>Time Out</th>
+        <th>Cost</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Parking sessions will be inserted here -->
     </tbody>
   </table>
 
@@ -101,13 +150,57 @@
           row.insertCell(3).innerText = card.type;
           row.insertCell(4).innerText = card.member_start ? new Date(card.member_start).toLocaleString() : '';
           row.insertCell(5).innerText = card.member_end ? new Date(card.member_end).toLocaleString() : '';
+          const actionsCell = row.insertCell(6);
+          const deleteButton = document.createElement('button');
+          deleteButton.innerText = 'Delete';
+          deleteButton.className = 'delete-button';
+          deleteButton.onclick = () => deleteCard(card.card_id);
+          actionsCell.appendChild(deleteButton);
         });
       } catch (error) {
         console.error('Error fetching parking cards:', error);
       }
     }
 
-    window.onload = fetchParkingCards;
+    async function fetchParkingSessions() {
+      try {
+        const response = await fetch('http://localhost:3000/card/session', {
+          method: 'GET'
+        });
+        const sessions = await response.json();
+        const tableBody = document.getElementById('parkingSessionTable').getElementsByTagName('tbody')[0];
+
+        sessions.forEach(session => {
+          const row = tableBody.insertRow();
+          row.insertCell(0).innerText = session.card_id;
+          row.insertCell(1).innerText = session.in ? 'Yes' : 'No';
+          row.insertCell(2).innerText = new Date(session.time_in).toLocaleString();
+          row.insertCell(3).innerText = session.time_out ? new Date(session.time_out).toLocaleString() : '';
+          row.insertCell(4).innerText = session.cost;
+        });
+      } catch (error) {
+        console.error('Error fetching parking sessions:', error);
+      }
+    }
+
+    async function deleteCard(cardId) {
+      try {
+        const response = await fetch(`http://localhost:3000/card/${cardId}`, {
+          method: 'DELETE'
+        });
+        const result = await response.json();
+        alert(result.message);
+        location.reload(); // Reload the page to update the list
+      } catch (error) {
+        console.error('Error deleting parking card:', error);
+      }
+    }
+
+    window.onload = () => {
+      fetchParkingCards();
+      fetchParkingSessions();
+    };
   </script>
 </body>
+
 </html>
