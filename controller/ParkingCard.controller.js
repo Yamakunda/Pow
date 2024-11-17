@@ -42,15 +42,30 @@ module.exports.updateParkingCard = async (req, res) => {
   }
 };
 // Delete a parking card by ID
+// module.exports.deleteParkingCard = async (req, res) => {
+//   try {
+//     const deletedCard = await ParkingCard.find({ card_id: req.params.id }).deleteOne();
+//     if (!deletedCard) return res.status(404).json({ message: "Parking card not found" });
+//     res.status(200).json({ message: "Parking card deleted" });
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
 module.exports.deleteParkingCard = async (req, res) => {
   try {
-    const deletedCard = await ParkingCard.find({ card_id: req.params.id }).deleteOne();
+    const deletedCard = await ParkingCard.findOne({ card_id: req.params.id });
     if (!deletedCard) return res.status(404).json({ message: "Parking card not found" });
-    res.status(200).json({ message: "Parking card deleted" });
+    deletedCard.name = "Không có";
+    deletedCard.type = "guest";
+    deletedCard.address = "Không có";
+    deletedCard.member_start = new Date();
+    deletedCard.member_end = new Date();
+    await deletedCard.save();
+    res.status(200).json({ message: "Member deleted" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-};
+}
 module.exports.parkIn = async (req, res) => {
   try {
     const card = await ParkingCard.findOne({ card_id: req.body.card_id });
@@ -142,12 +157,10 @@ module.exports.parkInOut = async (req, res) => {
       res.status(200).json({ message: `Card ${card.card_id} parked out`, cost: cost });
     }
   } catch (error) {
-    console.log(error);
     res.status(500).json({ message: error.message });
   }
 };
 module.exports.getParkingCardSessions = async (req, res) => {
-  console.log("getParkingCardSessions");
   try {
     const sessions = await ParkingSession.find().sort({ createdAt: -1 }).limit(5);
     res.status(200).json(sessions);
