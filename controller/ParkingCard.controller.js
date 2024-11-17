@@ -102,8 +102,8 @@ module.exports.parkOut = async (req, res) => {
 module.exports.parkInOut = async (req, res) => {
   try {
     const card = await ParkingCard.findOne({ card_id: req.body.card_id });
-    if (!card) return await ParkingCard.create({ card_id: req.body.card_id });
-    card = await ParkingCard.findOne({ card_id: req.body.card_id });
+    if (!card) {await ParkingCard.create({ card_id: req.body.card_id });
+    card = await ParkingCard.findOne({ card_id: req.body.card_id });}
 
     const lastSession = await ParkingSession.findOne({ card_id: card.card_id }).sort({ createdAt: -1 });
 
@@ -141,6 +141,7 @@ module.exports.parkInOut = async (req, res) => {
       res.status(200).json({ message: `Card ${card.card_id} parked out`, cost: cost });
     }
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: error.message });
   }
 };

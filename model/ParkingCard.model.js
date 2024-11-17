@@ -18,7 +18,7 @@ const ParkingCardSchema = new mongoose.Schema({
   address:{
     type: String,
     required: true,
-    defaut: "Không có",
+    default: "Không có",
   },
   member_start:{
     type: Date,
