@@ -14,7 +14,7 @@ module.exports.createParkingCard = async (req, res) => {
 // Get all parking cards
 module.exports.getParkingCards = async (req, res) => {
   try {
-    const cards = await ParkingCard.find();
+    const cards = await ParkingCard.find({type: "member"});
     res.status(200).json(cards);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -33,7 +33,8 @@ module.exports.getParkingCardById = async (req, res) => {
 // Update a parking card by ID
 module.exports.updateParkingCard = async (req, res) => {
   try {
-    const updatedCard = await ParkingCard.findOneAndUpdate({ card_id: req.body.card_id }, req.body)
+    const id = req.params.id;
+    const updatedCard = await ParkingCard.findOneAndUpdate({ card_id: id }, req.body)
     if (!updatedCard) return res.status(404).json({ message: "Parking card not found" });
     res.status(200).json(updatedCard);
   } catch (error) {

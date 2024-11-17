@@ -6,7 +6,7 @@ router.get("/session", controller.getParkingCardSessions);
 router.get("/", controller.getParkingCards);
 router.get("/:id", controller.getParkingCardById);
 router.post("/", controller.createParkingCard);
-router.put("/", controller.updateParkingCard);
+router.put("/:id", controller.updateParkingCard);
 router.delete("/:id", controller.deleteParkingCard);
 router.post("/parkin", controller.parkIn);
 router.post("/parkout", controller.parkOut);

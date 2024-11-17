@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Create Parking Card</title>
+  <title>Update Parking Card</title>
   <style>
     body {
       font-family: 'Arial', sans-serif;
@@ -109,7 +109,7 @@
       <button class="styled-button" onclick="window.location.href='index.html'">Create Parking Card</button>
       <button class="styled-button" onclick="window.location.href='testParking.html'">Test Parking</button>
     </div>
-    <h1>Create Parking Card</h1>
+    <h1>Update Parking Card</h1>
     <form id="parkingCardForm">
       <label for="card_id">Card ID:</label>
       <input type="text" id="card_id" name="card_id" required><br><br>
@@ -131,7 +131,7 @@
         <input type="datetime-local" id="member_end_time" name="member_end_time"><br><br>
       </div>
 
-      <button type="submit">Create Parking Card</button>
+      <button type="submit">Update Parking Card</button>
     </form>
     <div id="response"></div>
   </div>
@@ -152,16 +152,16 @@
 
       const formData = {
         card_id: document.getElementById('card_id').value,
-        type: document.getElementById('is_member').checked ? 'member' : 'guest',
-        name: document.getElementById('is_member').checked ? document.getElementById('name').value : "unknown",
-        address: document.getElementById('is_member').checked ? document.getElementById('address').value : "unknown",
-        member_start_time: document.getElementById('is_member').checked ? document.getElementById('member_start_time').value : null,
-        member_end_time: document.getElementById('is_member').checked ? document.getElementById('member_end_time').value : null
+        type: 'member',
+        name:  document.getElementById('name').value ,
+        address: document.getElementById('address').value ,
+        member_start_time:  document.getElementById('member_start_time').value ,
+        member_end_time: document.getElementById('member_end_time').value
       };
 
       try {
-        const response = await fetch('http://localhost:3000/card', {
-          method: 'POST',
+        const response = await fetch(`http://localhost:3000/card/${formData.card_id}`, {
+          method: 'PUT',
           headers: {
             'Content-Type': 'application/json'
           },
