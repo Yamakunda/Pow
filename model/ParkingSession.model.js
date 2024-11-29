@@ -13,18 +13,22 @@ const ParkingSessionSchema = new mongoose.Schema({
   time_in: {
     type: Date,
     required: true,
-    default: Date.now,
+    default: Date.now(),
   },
   time_out: {
     type: Date,
     required: true,
-    default: Date.now,
+    default: Date.now()
   },
   cost: {
     type: Number,
     required: true,
     default: 0,
   },
+  photo_path: {
+    type: String,
+    required: false,
+  }
 }, { timestamps: true });
 
 const ParkingSession = mongoose.model("Session", ParkingSessionSchema, "sessions");

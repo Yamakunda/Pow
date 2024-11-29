@@ -1,5 +1,44 @@
 const ParkingCard = require("../model/ParkingCard.model");
 const ParkingSession = require("../model/ParkingSession.model");
+const NodeWebcam = require('node-webcam');
+const path = require('path');
+const fs = require('fs');
+
+const webcamOptions = {
+  width: 1280,
+  height: 720,
+  quality: 100,
+  delay: 0,
+  saveShots: true,
+  output: "jpeg",
+  device: false,
+  callbackReturn: "location"
+};
+
+const Webcam = NodeWebcam.create(webcamOptions);
+
+// Function to capture photo
+const capturePhoto = (cardId, action) => {
+  return new Promise((resolve, reject) => {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    // const photoDir = path.join(__dirname, '../photos');
+    const photoDir = './photos';
+    
+    if (!fs.existsSync(photoDir)){
+      fs.mkdirSync(photoDir);
+    }
+
+    const photoPath = path.join(photoDir, `${cardId}_${action}_${timestamp}.jpg`);
+    
+    Webcam.capture(photoPath, (err, data) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(data);
+      }
+    });
+  });
+};
 // Create a new parking card
 module.exports.createParkingCard = async (req, res) => {
   try {
@@ -66,6 +105,18 @@ module.exports.deleteParkingCard = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 }
+
+
+module.exports.getParkingCardSessions = async (req, res) => {
+  try {
+    // const sessions = await ParkingSession.find().sort({ createdAt: -1 }).limit(5);
+    const sessions = await ParkingSession.find().sort({ createdAt: -1 });
+    res.status(200).json(sessions);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
 module.exports.parkIn = async (req, res) => {
   try {
     const card = await ParkingCard.findOne({ card_id: req.body.card_id });
@@ -82,6 +133,7 @@ module.exports.parkIn = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 }
+
 module.exports.parkOut = async (req, res) => {
   try {
     const card = await ParkingCard.findOne({ card_id: req.body.card_id });
@@ -117,23 +169,28 @@ module.exports.parkOut = async (req, res) => {
 };
 module.exports.parkInOut = async (req, res) => {
   try {
-    const card = await ParkingCard.findOne({ card_id: req.body.card_id });
-    if (!card) {await ParkingCard.create({ card_id: req.body.card_id });
-    card = await ParkingCard.findOne({ card_id: req.body.card_id });}
+    let card = await ParkingCard.findOne({ card_id: req.body.card_id });
+    if (!card) {
+      await ParkingCard.create({ card_id: req.body.card_id });
+      card = await ParkingCard.findOne({ card_id: req.body.card_id });
+    }
 
     const lastSession = await ParkingSession.findOne({ card_id: card.card_id }).sort({ createdAt: -1 });
 
     if (!lastSession || !lastSession.in) {
       // Perform park in
+      const photoPath = await capturePhoto(card.card_id, 'in');
+      
       const newSession = new ParkingSession({
         card_id: card.card_id,
         in: true,
         time_in: new Date(),
-        time_out: new Date()
+        time_out: new Date(),
+        photo_path: photoPath
       });
       await newSession.save();
 
-      res.status(200).json({ message: `Card ${card.card_id} parked in` });
+      res.status(200).json({ message: `Card ${card.card_id} parked in`, photo: photoPath });
     } else {
       // Perform park out
       const timeOut = new Date();
@@ -145,26 +202,21 @@ module.exports.parkInOut = async (req, res) => {
         cost = Math.max(Math.round((durationInMinutes / 60) * 5000 / 1000) * 1000, 1000);
       }
 
+      const photoPath = await capturePhoto(card.card_id, 'out');
+
       const newSession = new ParkingSession({
         card_id: card.card_id,
         in: false,
         time_in: lastSession.time_in,
         time_out: timeOut,
-        cost: cost
+        cost: cost,
+        photo_path: photoPath
       });
       await newSession.save();
 
-      res.status(200).json({ message: `Card ${card.card_id} parked out`, cost: cost });
+      res.status(200).json({ message: `Card ${card.card_id} parked out`, cost: cost, photo: photoPath });
     }
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
-module.exports.getParkingCardSessions = async (req, res) => {
-  try {
-    const sessions = await ParkingSession.find().sort({ createdAt: -1 }).limit(5);
-    res.status(200).json(sessions);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-}

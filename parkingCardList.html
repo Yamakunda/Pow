@@ -6,17 +6,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Parking Card List</title>
   <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      background-color: #f4f4f9;
-      color: #333;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      flex-direction: column;
-    }
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f4f9;
+  color: #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  flex-direction: column;
+  padding: 20px 0;
+}
 
     h1 {
       color: #4CAF50;
@@ -92,6 +93,57 @@
       color: black;
       border: 2px solid #f44336;
     }
+
+    .session-photo {
+      max-width: 300px;
+      height: auto;
+      cursor: pointer;
+    }
+
+    .refresh-button {
+      background-color: #2196F3;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 14px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 8px;
+      transition-duration: 0.4s;
+    }
+
+    .refresh-button:hover {
+      background-color: white;
+      color: black;
+      border: 2px solid #2196F3;
+    }
+
+    .heading-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      width: 80%;
+    }
+
+    .search-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 10px 0;
+      width: 80%;
+    }
+
+    .search-input {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+      width: 200px;
+    }
   </style>
 </head>
 
@@ -119,7 +171,16 @@
     </tbody>
   </table>
 
-  <h1>Parking Card Sessions</h1>
+  <div class="heading-container">
+    <h1>Parking Card Sessions</h1>
+    <button class="refresh-button" onclick="refreshSessions()">
+      Refresh Sessions
+    </button>
+  </div>
+  <div class="search-container">
+    <input type="text" id="sessionFilter" class="search-input" placeholder="Filter by Card ID..."
+      oninput="filterSessions()">
+  </div>
   <table id="parkingSessionTable">
     <thead>
       <tr>
@@ -128,6 +189,7 @@
         <th>Time In</th>
         <th>Time Out</th>
         <th>Cost</th>
+        <th>Photo</th>
       </tr>
     </thead>
     <tbody>
@@ -177,12 +239,26 @@
           row.insertCell(2).innerText = new Date(session.time_in).toLocaleString();
           row.insertCell(3).innerText = session.time_out ? new Date(session.time_out).toLocaleString() : '';
           row.insertCell(4).innerText = session.cost;
+          const photoCell = row.insertCell(5);
+          if (session.photo_path) {
+            const img = document.createElement('img');
+            img.src = session.photo_path;
+            img.className = 'session-photo';
+            img.onclick = () => window.open(session.photo_path, '_blank');
+            photoCell.appendChild(img);
+          } else {
+            photoCell.innerText = 'No photo';
+          }
         });
       } catch (error) {
         console.error('Error fetching parking sessions:', error);
       }
     }
-
+    async function refreshSessions() {
+      const tableBody = document.getElementById('parkingSessionTable').getElementsByTagName('tbody')[0];
+      tableBody.innerHTML = ''; // Clear existing rows
+      await fetchParkingSessions();
+    }
     async function deleteCard(cardId) {
       try {
         const response = await fetch(`http://localhost:3000/card/${cardId}`, {
@@ -195,11 +271,22 @@
         console.error('Error deleting parking card:', error);
       }
     }
+    function filterSessions() {
+      const filterValue = document.getElementById('sessionFilter').value.toLowerCase();
+      const tableRows = document.getElementById('parkingSessionTable')
+        .getElementsByTagName('tbody')[0]
+        .getElementsByTagName('tr');
 
+      Array.from(tableRows).forEach(row => {
+        const cardId = row.cells[0].innerText.toLowerCase();
+        row.style.display = cardId.includes(filterValue) ? '' : 'none';
+      });
+    }
     window.onload = () => {
       fetchParkingCards();
       fetchParkingSessions();
     };
+
   </script>
 </body>
 
