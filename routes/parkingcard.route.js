@@ -3,6 +3,7 @@ const controller = require("../controller/ParkingCard.controller");
 const router = express.Router();
 
 router.get("/session", controller.getParkingCardSessions);
+router.get("/last", controller.getLastSession);
 router.get("/", controller.getParkingCards);
 router.get("/:id", controller.getParkingCardById);
 router.post("/", controller.createParkingCard);

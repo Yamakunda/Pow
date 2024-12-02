@@ -6,17 +6,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Parking API Test</title>
   <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      background-color: #f4f4f9;
-      color: #333;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-    }
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f4f9;
+  color: #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  flex-direction: column;
+  padding: 20px 0;
+}
 
     input {
       padding: 10px;
@@ -59,6 +60,7 @@
     <button class="styled-button" onclick="window.location.href='parkingCardList.html'">Parking Card List</button>
     <button class="styled-button" onclick="window.location.href='index.html'">Create Parking Card</button>
     <button class="styled-button" onclick="window.location.href='testParking.html'">Test Parking</button>
+    <button class="styled-button" onclick="window.location.href='Employee.html'">Employee</button>
   </div>
   <input type="text" id="card_id" placeholder="Enter Card ID">
   <button onclick="callApi('parkin')">Park In</button>

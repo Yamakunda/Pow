@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employee Screen</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f4f9;
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      flex-direction: column;
+      padding: 20px 0;
+    }
+
+    .styled-button {
+      background-color: #4CAF50;
+      border: none;
+      color: white;
+      padding: 15px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 12px;
+      transition-duration: 0.4s;
+    }
+
+    .styled-button:hover {
+      background-color: white;
+      color: black;
+      border: 2px solid #4CAF50;
+    }
+
+    .session-container, .outsessions-container {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-top: 20px;
+      width: 45%;
+      max-width: 800px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .session-photo {
+      max-width: 300px;
+      height: auto;
+      margin-top: 10px;
+      border-radius: 4px;
+    }
+
+    .refresh-button {
+      background-color: #2196F3;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 14px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 8px;
+      transition-duration: 0.4s;
+    }
+
+    .refresh-button:hover {
+      background-color: white;
+      color: black;
+      border: 2px solid #2196F3;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th,
+    td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .session-row {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .session-container h2,
+    .outsessions-container h2 {
+      text-align: center;
+      width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="button-container">
+    <button class="styled-button" onclick="window.location.href='parkingCardList.html'">Parking Card List</button>
+    <button class="styled-button" onclick="window.location.href='index.html'">Create Parking Card</button>
+    <button class="styled-button" onclick="window.location.href='testParking.html'">Test Parking</button>
+    <button class="styled-button" onclick="window.location.href='Employee.html'">Employee</button>
+  </div>
+
+  <button class="refresh-button" onclick="fetchLastSession()">Refresh</button>
+
+  <div class="session-row">
+    <div class="session-container">
+      <h2>Parking Session</h2>
+      <table id="sessionTable">
+        <tr>
+          <th>Card ID</th>
+          <td id="card_id"></td>
+        </tr>
+        <tr>
+          <th>Status</th>
+          <td id="status"></td>
+        </tr>
+        <tr id="time_in_row">
+          <th>Time In</th>
+          <td id="time_in"></td>
+        </tr>
+        <tr id="time_out_row" style="display: none;">
+          <th>Time Out</th>
+          <td id="time_out"></td>
+        </tr>
+        <tr id="cost_row" style="display: none;">
+          <th>Cost</th>
+          <td id="cost"></td>
+        </tr>
+      </table>
+      <div id="photoContainer"></div>
+    </div>
+
+    <div class="outsessions-container" id="outsessionsContainer" style="display: none;">
+      <h2>Last Session</h2>
+      <table id="outSessionTable">
+        <tr>
+          <th>Card ID</th>
+          <td id="out_card_id"></td>
+        </tr>
+        <tr>
+          <th>Status</th>
+          <td id="out_status"></td>
+        </tr>
+        <tr id="out_time_in_row">
+          <th>Time In</th>
+          <td id="out_time_in"></td>
+        </tr>
+        <tr id="out_time_out_row" style="display: none;">
+          <th>Time Out</th>
+          <td id="out_time_out"></td>
+        </tr>
+        <tr id="out_cost_row" >
+          <th>Cost</th>
+          <td id="out_cost"></td>
+        </tr>
+      </table>
+      <div id="outPhotoContainer"></div>
+    </div>
+  </div>
+
+  <script>
+    async function fetchLastSession() {
+      try {
+        const response = await fetch('http://localhost:3000/card/last');
+        const data = await response.json();
+        const session = data.session;
+
+        // Update main session display
+        document.getElementById('card_id').textContent = session.card_id;
+        document.getElementById('status').textContent = session.in ? 'Parked In' : 'Parked Out';
+
+        if (session.in) {
+          document.getElementById('time_in_row').style.display = '';
+          document.getElementById('time_out_row').style.display = 'none';
+          document.getElementById('cost_row').style.display = 'none';
+          document.getElementById('time_in').textContent = new Date(session.time_in).toLocaleString();
+        } else {
+          document.getElementById('time_in_row').style.display = 'none';
+          document.getElementById('time_out_row').style.display = '';
+          document.getElementById('cost_row').style.display = '';
+          document.getElementById('time_out').textContent = new Date(session.time_out).toLocaleString();
+          document.getElementById('cost').textContent = session.cost ? `$${session.cost}` : '-';
+        }
+
+        const photoContainer = document.getElementById('photoContainer');
+        photoContainer.innerHTML = '';
+        if (session.photo_path) {
+          const img = document.createElement('img');
+          img.src = session.photo_path;
+          img.className = 'session-photo';
+          img.onclick = () => window.open(session.photo_path, '_blank');
+          photoContainer.appendChild(img);
+        }
+
+        // Handle outsessions if inout is true
+        const outsessionsContainer = document.getElementById('outsessionsContainer');
+        if (data.inout) {
+          const outsession = data.outsessions;
+          outsessionsContainer.style.display = 'block';
+
+          // Update out session display
+          document.getElementById('out_card_id').textContent = outsession.card_id;
+          document.getElementById('out_status').textContent = outsession.in ? 'Parked In' : 'Parked Out';
+
+          if (outsession.in) {
+            document.getElementById('out_time_in_row').style.display = '';
+            document.getElementById('out_time_out_row').style.display = 'none';
+            document.getElementById('out_time_in').textContent = new Date(outsession.time_in).toLocaleString();
+          } else {
+            document.getElementById('out_time_in_row').style.display = 'none';
+            document.getElementById('out_time_out_row').style.display = '';
+            document.getElementById('out_time_out').textContent = new Date(outsession.time_out).toLocaleString();
+            document.getElementById('out_cost').textContent = outsession.cost ? `$${outsession.cost}` : '-';
+          }
+
+          const outPhotoContainer = document.getElementById('outPhotoContainer');
+          outPhotoContainer.innerHTML = '';
+          if (outsession.photo_path) {
+            const img = document.createElement('img');
+            img.src = outsession.photo_path;
+            img.className = 'session-photo';
+            img.onclick = () => window.open(outsession.photo_path, '_blank');
+            outPhotoContainer.appendChild(img);
+          }
+        } else {
+          outsessionsContainer.style.display = 'none';
+        }
+
+      } catch (error) {
+        console.error('Error fetching last session:', error);
+      }
+    }
+
+    // Fetch data when page loads
+    window.onload = fetchLastSession;
+  </script>
+</body>
+
+</html>

@@ -220,3 +220,19 @@ module.exports.parkInOut = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+module.exports.getLastSession = async (req, res) => {
+  try {
+    const session = await ParkingSession.findOne().sort({ createdAt: -1 }).limit(1);
+    if (!session) return res.status(404).json({ message: "Parking session not found" });
+    var inout = false;
+    console.log(session);
+    if (session.in == false) {
+      var outsessions = await ParkingSession.findOne({ card_id: session.card_id, in: true }).sort({ createdAt: -1 }).limit(1);
+      inout = true;
+    }
+    res.status(200).json({inout: inout, session: session , outsessions: outsessions });
+    
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
